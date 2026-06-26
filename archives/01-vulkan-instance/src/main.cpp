@@ -58,7 +58,7 @@ int main() {
         const VkInstance instance = createInstance();
         const auto devices = enumeratePhysicalDevices(instance);
 
-        std::cout << "Hello, Vulkan!" << '\n';
+        std::cout << "Hello, ,Vulkan!" << '\n';
         std::cout << "Found " << devices.size() << " Vulkan device(s)." << '\n';
 
         for (size_t i = 0; i < devices.size(); ++i) {

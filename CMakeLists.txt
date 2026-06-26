@@ -19,3 +19,7 @@ if (MSVC)
 else()
     target_compile_options(LearnVulkanHello PRIVATE -Wall -Wextra -Wpedantic)
 endif()
+
+# 把第一阶段存档也加入根 CMake，方便 Rider 从项目根目录直接加载和调试。
+# 存档目录仍然保留自己的 CMakeLists.txt，因此也可以单独打开和构建。
+add_subdirectory(archives/01-vulkan-instance)

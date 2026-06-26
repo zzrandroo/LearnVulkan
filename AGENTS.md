@@ -16,6 +16,8 @@
 6. 如果代码来自教程、官方文档或外部资料，需要在对应阶段记录来源和自己的理解。
 7. 构建目录、临时文件、IDE 生成物不要作为学习代码存档的核心内容。
 8. 每个阶段结束时都要记录：阶段目标、关键概念、运行方式、常见错误、下一步计划。
+9. 如果使用 MSVC 编译包含中文注释的源码，必须在对应 CMake 目标中加入 `/utf-8`，避免编译器按系统代码页读取 UTF-8 源文件。
+10. 每个阶段存档如果需要在 Rider 中调试，必须从根目录 `CMakeLists.txt` 使用 `add_subdirectory(...)` 挂载该阶段目录，让 Rider 能从项目根目录发现对应目标。
 
 ## 代码存档规则
 
@@ -43,6 +45,35 @@ archives/
 - 每个存档都要有自己的 `README.md`，说明这一阶段学了什么、怎么构建、怎么运行。
 
 当主线代码进入新阶段时，先复制上一阶段的稳定代码到新的存档目录，再在主线或新阶段目录中继续修改。
+
+## Rider 和 CMake 调试规范
+
+为了避免阶段代码在 Rider 中没有语法高亮、不能设置断点或找不到运行目标，后续每个阶段都按以下方式接入：
+
+1. 阶段目录保留自己的 `CMakeLists.txt`，保证可以单独构建和回看。
+2. 根目录 `CMakeLists.txt` 也要通过 `add_subdirectory(archives/阶段目录名)` 挂载该阶段。
+3. 阶段目标名必须唯一，例如 `LearnVulkanStage01`、`LearnVulkanStage02`。
+4. 在 Rider 中优先打开项目根目录 `E:\Learn Vulkan`，然后通过 CMake Reload 加载所有阶段目标。
+5. 如果 Rider 没有语法高亮，优先检查这个文件是否属于已加载的 CMake Target。
+6. 如果 Rider 没有显示阶段运行配置，优先检查根 CMake 是否已经挂载该阶段目录。
+
+根目录挂载示例：
+
+```cmake
+# 把第一阶段存档也加入根 CMake，方便 Rider 从项目根目录直接加载和调试。
+# 存档目录仍然保留自己的 CMakeLists.txt，因此也可以单独打开和构建。
+add_subdirectory(archives/01-vulkan-instance)
+```
+
+MSVC 编码设置示例：
+
+```cmake
+if (MSVC)
+    target_compile_options(LearnVulkanStage01 PRIVATE /W4 /permissive- /utf-8)
+else()
+    target_compile_options(LearnVulkanStage01 PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+```
 
 ## 中文注释规范
 
@@ -419,13 +450,3 @@ archives/16-review-refactor/
 
 说明下一阶段准备学习什么。
 ```
-
-## 当前阶段建议
-
-当前项目已经有最小 Vulkan 实例和物理设备枚举代码，因此建议先把当前状态整理为：
-
-```text
-archives/01-vulkan-instance/
-```
-
-整理时需要补充中文注释，并确保存档中的代码可以独立构建。
